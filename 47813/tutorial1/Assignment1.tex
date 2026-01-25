@@ -1,0 +1,203 @@
+
+\documentclass[11pt]{article}
+\usepackage{lscape}
+\usepackage{amsfonts}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\setcounter{MaxMatrixCols}{10}
+\newtheorem{theorem}{Theorem}
+\newtheorem{acknowledgement}[theorem]{Acknowledgement}
+\newtheorem{algorithm}[theorem]{Algorithm}
+\newtheorem{axiom}[theorem]{Axiom}
+\newtheorem{case}[theorem]{Case}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{conclusion}[theorem]{Conclusion}
+\newtheorem{condition}[theorem]{Condition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{criterion}[theorem]{Criterion}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{exercise}[theorem]{Exercise}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{notation}[theorem]{Notation}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{solution}[theorem]{Solution}
+\newtheorem{summary}[theorem]{Summary}
+\newenvironment{proof}[1][Proof]{\noindent\textbf{#1.} }{\ \rule{0.5em}{0.5em}}
+
+\geometry{left=1.3in, right=1.3in, top=1.2in, bottom=1.2in}
+
+\begin{document}
+
+\begin{flushright}
+Econometrics III 47-813
+
+Spring 2026
+
+Robert A. Miller
+\end{flushright}
+
+\begin{center}
+\textbf{ASSIGNMENT 1 (Kang et al, 2015)}
+\end{center}
+
+\vspace{0.5cm}
+
+\noindent \textbf{Overview.}
+This assignment concerns Conditional Choice Probability (CCP) estimators and their application to regulatory decision-making. 
+You will replicate and extend the analysis in Kang, Lowery, and Wardlaw (2015, \textit{Review of Financial Studies}), 
+which studies the FDIC's bank closure decisions using a dynamic discrete choice framework.
+
+\vspace{0.3cm}
+
+\noindent \textbf{Instructions.}
+Work in groups of about three. Each group should submit a single, self-contained report with well-documented code as an appendix. 
+Hand written work will not be graded. The code must be clearly written with comments where appropriate so that a reader can easily follow. 
+Poor grammar, unclear expression, and lack of precision, will be graded as if I have very limited expertise in
+this area. All questions carry equal weight unless otherwise stated.
+
+\vspace{0.5cm}
+
+\noindent\textbf{Model}
+The economic agent is the FDIC. Given a state variable $x_{it}$, the FDIC chooses $d_{it} \in \{0, 1\}$ where
+\[
+d_{it} =
+\begin{cases}
+0 & \text{if FDIC chooses to let the bank continue in period } t \\
+1 & \text{if FDIC chooses to close the bank in period } t.
+\end{cases}
+\]
+
+\vspace{0.3cm}
+\noindent\underbar{Per-period payoffs}
+The per-period payoff to the FDIC is:
+\[
+u_j(x_{it}, \varepsilon_{it}) = -\mathbf{1}_{d_{jt}=1} c(x_{it}) + \varepsilon_{jit} =
+\begin{cases}
+\varepsilon_{0it} & \text{if } d_{it} = 0 \\
+-c(x_{it}) + \varepsilon_{1it} & \text{if } d_{it} = 1
+\end{cases}
+\]
+where $\varepsilon_{it} := (\varepsilon_{0it}, \varepsilon_{1it})$.
+
+\vspace{0.3cm}
+\noindent\underbar{Objective function}
+The FDIC maximizes:
+\[
+(1 - d_{it}) u_0(x_{it}, \varepsilon_{it}) + d_{it} u_1(x_{it}, \varepsilon_{it}) + \sum_{s=t+1}^{T} \beta^{s-t} \mathbb{E}\left[(1 - d_{is}) u_0(x_{is}, \varepsilon_{is}) + d_{is} u_1(x_{is}, \varepsilon_{is}) \mid x_{it}, d_{it}\right].
+\]
+
+\vspace{0.3cm}
+\noindent\underbar{Conditional value functions}
+The conditional value function given choice $j$ at state $x_{it}$ is:
+\begin{align*}
+v_j(x_{it}) &= u_j(x_{it}) + \sum_{s=t+1}^{T} \beta^{s-t} \mathbb{E}\left[V(x_{i,t+1}, \varepsilon_{i,t+1}) \mid x_{it}, d_{it} = j\right], \quad j \in \{0, 1\}
+\end{align*}
+where $u_0(x_{it}) = 0$ and $u_1(x_{it}) = -c(x_{it})$.
+
+\vspace{0.5cm}
+
+\noindent\textbf{Question 1. }
+Derive the Hotz-Miller inversion result under the assumption that $\varepsilon_{it}$ follows an i.i.d.\ 
+Type-I extreme value distribution with mean 0 and scale parameter $\sigma$. Specifically, show that:
+\[
+v_0(x_{it}) - v_1(x_{it}) = \sigma \log \frac{p_0(x_{it})}{p_1(x_{it})}
+\]
+where $p_j(x_{it})$ denotes the conditional choice probability of action $j$ given state $x_{it}$.
+
+\vspace{0.5cm}
+
+\noindent\textbf{Question 2. }
+Derive the following equation (6) in Kang et al.\ (2015) uses notation $p_1^{(1)}(x_{0it})$ and $c^{(1)}(x_{0it})$:
+\[
+\sigma \log \frac{p_0(x_{it})}{p_1(x_{it})} = \beta \mathbb{E}_x\left[ -\sigma log p_1^{(1)}(x_{0it}) - c^{(1)}(x_{0it}) \right] + c(x_{it})
+\]
+\begin{itemize}
+    \item[(a)] Explain what these terms mean using the definition of $A^{(k)}(x_{jit})$ in the paper (page 1067).
+    \item[(b)] What exactly is the expectation operator in equation (6) doing?
+\end{itemize}
+
+\vspace{0.5cm}
+
+\noindent\textbf{Question 3. }
+Consider the cost function $c(x_{it})$. The authors separate monetary costs $MC(x_{it})$ and non-monetary costs 
+(parameterized by $\tilde{x}_{it}'\theta_{nmc}$). Tables 3 and 7 present the parameter estimates for $\theta_{mc}$ 
+and $\theta_{nmc}$.
+\begin{itemize}
+    \item[(a)] What are the ``independent variables'' for monetary costs and non-monetary costs?
+    \item[(b)] What assumptions must be satisfied for these estimates to be identified?
+    \item[(c)] Critically evaluate these identification assumptions. Do you find them plausible? Why or why not?
+\end{itemize}
+
+\vspace{0.5cm}
+
+\noindent\textbf{Question 4. }
+How do the authors estimate the transition processes for the state variables?
+\begin{itemize}
+    \item[(a)] Describe their approach in detail.
+    \item[(b)] Considering the model structure, would you use a different approach? Justify your answer.
+\end{itemize}
+
+\vspace{0.5cm}
+
+\noindent\textbf{Question 5. }
+Replicate the baseline results from Kang et al.\ (2015). Use the replication code and data provided in the \texttt{tutorial1/replication/} folder.
+\begin{itemize}
+    \item[(a)] Run the first-stage logit estimation to obtain CCPs. Report the coefficient estimates and compare them to Table 2 in the paper.
+    \item[(b)] Run the second-stage GMM estimation to recover structural parameters. Report the estimates for monetary and non-monetary cost parameters and compare them to Tables 3 and 7.
+    \item[(c)] Briefly discuss any discrepancies between your results and the published estimates.
+\end{itemize}
+\vspace{0.5cm}
+
+\noindent For the following set of questions (Questions 6 -- 8), modify the replication code to implement the alternative specifications. 
+Clearly describe how you implement this modification in the replication code. For each changes you should make 
+to the conditional choice probabilities, think about the functional form of monetary costs and non-monetary costs of
+FDIC on closing a bank.
+\vspace{0.5cm}
+
+\noindent\textbf{Question 6. }
+Include a time trend in the estimation of the choice probabilities.
+\vspace{0.5cm}
+
+\noindent\textbf{Question 7. }
+Omit the effect of the House of Representatives (denoted as \texttt{House} in the paper) 
+and/or Senate in the estimation of the choice probabilities.
+\vspace{0.5cm}
+
+\noindent\textbf{Question 8. }
+Add squared terms on time, House, and/or Senate in the estimation of the choice probabilities.
+\vspace{0.5cm}
+
+\noindent\textbf{Question 9. }
+Synthesize your findings from the alternative specifications.
+\begin{itemize}
+    \item[(a)] Which specification choices have the largest impact on the estimated cost of bank closure?
+    \item[(b)] What are the key sources of identification in this model? How robust is identification to specification choices?
+    \item[(c)] Based on your analysis, what policy conclusions can be drawn about FDIC behavior during the financial crisis?
+\end{itemize}
+
+\vspace{0.7cm}
+
+\noindent\textbf{Deliverables.}
+Submit a report that:
+\begin{itemize}
+    \item[(i)] Answers each question with appropriate mathematical derivations.
+    \item[(ii)] Reports and interprets your empirical estimates across specifications.
+    \item[(iii)] Discusses limitations and possible extensions.
+\end{itemize}
+Attach your code (well commented) as an appendix. Explain any modifications you made to the replication code.
+
+\vspace{0.5cm}
+
+\noindent\textbf{References.}
+
+\noindent Hotz, V.J. and Miller, R.A. (1993). Conditional Choice Probabilities and the Estimation of Dynamic Models. \textit{The Review of Economic Studies}, 60(3):497--529.
+
+\noindent Kang, A., Lowery, R., and Wardlaw, M. (2015). The Costs of Closing Failed Banks: A Structural Estimation of Regulatory Incentives. \textit{The Review of Financial Studies}, 28(4):1060--1102.
+
+\end{document}
