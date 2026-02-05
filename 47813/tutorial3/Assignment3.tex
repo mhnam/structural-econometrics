@@ -1,0 +1,233 @@
+
+\documentclass[11pt]{article}
+\usepackage{lscape}
+\usepackage{amsfonts}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+
+\setcounter{MaxMatrixCols}{10}
+\newtheorem{theorem}{Theorem}
+\newtheorem{acknowledgement}[theorem]{Acknowledgement}
+\newtheorem{algorithm}[theorem]{Algorithm}
+\newtheorem{axiom}[theorem]{Axiom}
+\newtheorem{case}[theorem]{Case}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{conclusion}[theorem]{Conclusion}
+\newtheorem{condition}[theorem]{Condition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{criterion}[theorem]{Criterion}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{exercise}[theorem]{Exercise}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{notation}[theorem]{Notation}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{solution}[theorem]{Solution}
+\newtheorem{summary}[theorem]{Summary}
+\newenvironment{proof}[1][Proof]{\noindent\textbf{#1.} }{\ \rule{0.5em}{0.5em}}
+
+\geometry{left=1.3in, right=1.3in, top=1.2in, bottom=1.2in}
+
+\begin{document}
+
+\begin{flushright}
+Econometrics III 47-813
+
+Spring 2026
+
+Robert A. Miller
+\end{flushright}
+
+\begin{center}
+\textbf{ASSIGNMENT 3 (Arcidiacono and Miller, 2011)}
+\end{center}
+
+\vspace{0.5cm}
+
+\noindent \textbf{Overview.}
+This assignment concerns CCP-based estimation of single-agent dynamic discrete choice models with \emph{unobserved heterogeneity}, based on Arcidiacono and Miller (2011, \textit{Econometrica}). You will: (i) understand why standard two-step CCP methods fail when agent types are unobserved, (ii) implement the EM algorithm combined with CCP estimation, (iii) compare different CCP updating schemes (data vs.\ model updating), and (iv) investigate the role of initial conditions in identifying type distributions. The empirical setting is the bus engine replacement model of Rust (1987).
+
+\vspace{0.3cm}
+
+\noindent \textbf{Instructions.}
+Work in groups of about three. Each group should submit a single, self-contained report with well-documented code as an appendix. Hand written work will not be graded. Use the replication code provided in the \texttt{tutorial3/} folder. Questions will ask you to explain algorithms, modify parameters, and compare results. Report the specification of your computer (CPU, cores, memory) and computation times. All questions carry equal weight unless otherwise stated.
+
+\vspace{0.5cm}
+
+\noindent\textbf{Model.}
+Consider the bus engine replacement problem of Rust (1987), extended to include unobserved heterogeneity following Arcidiacono and Miller (2011). Time is discrete with periods $t = 1, 2, \ldots$, and the decision-maker (Harold Zurcher) discounts the future at rate $\beta \in (0,1)$.
+
+\vspace{0.3cm}
+\noindent\underbar{State variables.} The state variables are $(x_t, z_i, s_i)$ where:
+\begin{itemize}
+    \item $x_t \in [0, \bar{x}]$: Accumulated mileage (discretized into bins).
+    \item $z_i$: Bus-specific mileage increment parameter (time-invariant, observed).
+    \item $s_i \in \{0, 1\}$: Unobserved bus type (time-invariant, \textbf{not observed} by econometrician).
+\end{itemize}
+
+\vspace{0.3cm}
+\noindent\underbar{Choice variables.} Each period, the decision-maker chooses $d_t \in \{0, 1\}$ where:
+\begin{itemize}
+    \item $d_t = 0$: Replace the engine (mileage resets to zero).
+    \item $d_t = 1$: Keep the engine (mileage continues to accumulate).
+\end{itemize}
+
+\vspace{0.3cm}
+\noindent\underbar{Flow payoffs.} The systematic component of current utility is:
+\begin{align*}
+u_0(x_t, s_i) &= 0 \quad \text{(replace, normalized)} \\
+u_1(x_t, s_i) &= \alpha_1 + \alpha_2 x_t + \alpha_3 s_i \quad \text{(keep)}
+\end{align*}
+where $\alpha_1$ is the base utility from keeping, $\alpha_2 < 0$ captures the increasing maintenance cost with mileage, and $\alpha_3$ captures type-specific differences in replacement threshold. Each period the decision-maker also receives a private shock $\varepsilon_{jt}$ that is i.i.d.\ Type I extreme value across choices and time.
+
+\vspace{0.3cm}
+\noindent\underbar{Transition.} Mileage increments follow an exponential distribution with bus-specific rate parameter $z_i$:
+\[
+\Delta x_t \sim \text{Exp}(z_i)
+\]
+After replacement ($d_t = 0$), mileage resets: $x_{t+1} = \Delta x_t$. After keeping ($d_t = 1$), mileage accumulates: $x_{t+1} = x_t + \Delta x_t$.
+
+\vspace{0.3cm}
+\noindent\underbar{Unobserved heterogeneity.} The type $s_i$ is drawn at the beginning of time from:
+\[
+P(s_i = 1) = 1 - \pi, \quad P(s_i = 0) = \pi
+\]
+The econometrician observes $(x_{it}, z_i, d_{it})$ for each bus $i$ and period $t$, but does \textbf{not} observe $s_i$.
+
+\vspace{0.3cm}
+\noindent\underbar{Parameters.} Use the following baseline values:
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Parameter & Symbol & Value \\
+\midrule
+Base utility (keep) & $\alpha_1$ & $2.0$ \\
+Mileage coefficient & $\alpha_2$ & $-0.15$ \\
+Type effect & $\alpha_3$ & $1.0$ \\
+Discount factor & $\beta$ & $0.9$ \\
+Type 0 probability & $\pi$ & $0.4$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+%==============================================================================
+\vspace{0.3cm}
+
+\noindent\textbf{Question 1.}
+Define the dynamic optimization problem and explain how finite dependence arises.
+\begin{itemize}
+    \item[(a)] Write down the Bellman equation for a bus of type $s$. Define the conditional value functions $v_0(x, s)$ and $v_1(x, s)$, and the ex-ante value function $V(x, s)$.
+    \item[(b)] Explain how the Type I extreme value assumption yields the logit choice probability and the ``log-sum'' formula for the ex-ante value function.
+    \item[(c)] This model exhibits one-period finite dependence. Derive the expression for $v_1(x, s) - v_0(x, s)$ that shows the future value terms cancel. Why does finite dependence arise from the replacement (terminal) action?
+    \item[(d)] How does finite dependence simplify estimation? Compare to models without this property (e.g., where both actions lead to continuation with different transition dynamics).
+\end{itemize}
+
+\vspace{0.3cm}
+
+\noindent\textbf{Question 2.}
+Implement the model solution and simulation.
+\begin{itemize}
+    \item[(a)] Describe the algorithm for computing optimal CCPs via fixed-point iteration. What is the contraction mapping? What determines convergence?
+    \item[(b)] Using the baseline parameters, solve for the optimal CCPs separately for type $s=0$ and type $s=1$. Plot the keep probability as a function of mileage for both types, for several values of $z$. Interpret the economic patterns.
+    \item[(c)] Simulate panel data with $N = 1000$ buses and $T = 30$ periods (after a burn-in of 10 periods). Report summary statistics: replacement rates by type, mileage distributions, and the empirical relationship between mileage and replacement.
+    \item[(d)] Modify the type effect $\alpha_3$ (e.g., try $\alpha_3 = 0.5$ and $\alpha_3 = 2.0$). How do equilibrium CCPs and simulated outcomes change? Discuss identification: what variation in the data identifies $\alpha_3$?
+\end{itemize}
+
+\vspace{0.3cm}
+
+\noindent\textbf{Question 3.}
+Estimate the model assuming types are \textbf{observed}.
+\begin{itemize}
+    \item[(a)] \textbf{NFXP (Nested Fixed Point).} Describe the algorithm: what is the inner loop, what is the outer loop? Implement NFXP and report parameter estimates, standard errors, and computation time.
+    \item[(b)] \textbf{Two-Step CCP.} Describe the Hotz-Miller (1993) approach: what is estimated in the first stage? How does the Hotz-Miller inversion recover future values from CCPs? Implement the two-step estimator and report results.
+    \item[(c)] Compare NFXP and Two-Step: parameter estimates, standard errors, and computation time. When types are observed, which method is preferred and why?
+\end{itemize}
+
+\vspace{0.3cm}
+
+\noindent\textbf{Question 4.}
+Now suppose types are \textbf{unobserved}. Explain why standard methods fail.
+\begin{itemize}
+    \item[(a)] If we estimate CCPs by pooling all buses (ignoring types), what do we actually estimate? Write the relationship between the pooled CCP and the type-specific CCPs.
+    \item[(b)] Explain the problem: to get type-specific CCPs, we need posterior type probabilities; but to compute posteriors, we need parameters (and hence CCPs).
+    \item[(c)] How does the EM algorithm resolve this problem? Describe the E-step (computing posterior type probabilities) and the M-step (updating parameters given posteriors).
+\end{itemize}
+
+\vspace{0.3cm}
+
+\noindent\textbf{Question 5.}
+Implement EM-based estimation with unobserved heterogeneity using two different CCP updating approaches.
+\begin{itemize}
+    \item[(a)] \textbf{CCP-EM with Data Updating.} In the M-step, update CCPs via weighted reduced-form logit:
+    \[
+    \hat{p}^{k+1}(x, s) = \frac{\sum_{i,t} \tau_{is}^k \mathbf{1}\{x_{it}=x, d_{it}=1\}}{\sum_{i,t} \tau_{is}^k \mathbf{1}\{x_{it}=x\}}
+    \]
+    where $\tau_{is}^k$ is the posterior probability that bus $i$ is type $s$. Implement this method and report parameter estimates, type classification accuracy, and computation time.
+    \item[(b)] \textbf{CCP-EM with Model Updating.} In the M-step, update CCPs using the model's best-response operator:
+    \[
+    p^{k+1} = \Psi(p^k; \theta^{k+1})
+    \]
+    This ensures CCPs are always model-consistent. Implement this method and report results.
+    \item[(c)] Compare the two CCP-EM methods. Which converges faster? Which yields more accurate parameter estimates? When might each be preferred?
+    \item[(d)] Also compare to NFXP+EM (which solves the full DP in the M-step). Report computation times and discuss the trade-off between computational cost and statistical efficiency.
+\end{itemize}
+
+\vspace{0.3cm}
+
+\noindent\textbf{Question 6.}
+Investigate the role of initial conditions.
+\begin{itemize}
+    \item[(a)] Plot the distribution of initial mileage $x_{i0}$ separately for type 0 and type 1 buses in your simulated data. Are they different? Explain why initial conditions depend on unobserved type.
+    \item[(b)] If we ignore the initial conditions problem (i.e., treat $P(s_i = 1)$ as the same for all buses regardless of $x_{i0}$), what bias might arise in estimating the type distribution $\pi$?
+    \item[(c)] Arcidiacono and Miller (2011) propose modeling initial conditions as:
+    \[
+    P(s_i = 1 | x_{i0}, z_i) = \Lambda(\gamma_0 + \gamma_1 x_{i0} + \gamma_2 z_i)
+    \]
+    Explain how this addresses the initial conditions problem. Modify your estimator to incorporate this correction and compare results with and without the correction.
+\end{itemize}
+
+\vspace{0.3cm}
+
+\noindent\textbf{Question 7.}
+Conduct a Monte Carlo study to assess finite-sample performance.
+\begin{itemize}
+    \item[(a)] \textbf{Design.} Conduct at least 100 Monte Carlo replications. For each replication: (i) simulate a new dataset, (ii) estimate using Two-Step (with observed types), CCP-EM (Data), and CCP-EM (Model), and (iii) record point estimates for $(\alpha_1, \alpha_2, \alpha_3, \pi)$ and computation time.
+    \item[(b)] \textbf{Visualize.} For each parameter, create a figure showing the distribution of estimates across replications. Include vertical lines at the true values. Compare the three methods in the same figure.
+    \item[(c)] \textbf{Summary statistics.} Report a table with mean estimate, bias, standard deviation, and RMSE for each parameter and method. Include mean computation time.
+    \item[(d)] \textbf{Discussion.} Which parameters are hardest to estimate? Does the type effect $\alpha_3$ exhibit more bias than the mileage coefficient $\alpha_2$? Explain intuitively.
+\end{itemize}
+
+\vspace{0.3cm}
+
+%==============================================================================
+\vspace{0.7cm}
+
+\noindent\textbf{Deliverables.}
+Submit a report that:
+\begin{itemize}
+    \item[(i)] Answers each question with appropriate explanations and derivations.
+    \item[(ii)] Includes all tables, figures, and summary statistics requested.
+    \item[(iii)] Reports and interprets estimation results across methods (Two-Step, CCP-EM Data, CCP-EM Model, NFXP+EM).
+    \item[(iv)] Discusses the practical implications of unobserved heterogeneity for empirical work.
+\end{itemize}
+Attach your code (well commented) as an appendix, highlighting any modifications you made to the provided code. Report computation times and computer specifications.
+
+\vspace{0.5cm}
+
+\noindent\textbf{References.}
+
+\noindent Aguirregabiria, V. and Mira, P. (2007). Sequential Estimation of Dynamic Discrete Games. \textit{Econometrica}, 75(1):1--53.
+
+\noindent Arcidiacono, P. and Miller, R.A. (2011). Conditional Choice Probability Estimation of Dynamic Discrete Choice Models With Unobserved Heterogeneity. \textit{Econometrica}, 79(6):1823--1867.
+
+\noindent Hotz, V.J. and Miller, R.A. (1993). Conditional Choice Probabilities and the Estimation of Dynamic Models. \textit{The Review of Economic Studies}, 60(3):497--529.
+
+\noindent Rust, J. (1987). Optimal Replacement of GMC Bus Engines: An Empirical Model of Harold Zurcher. \textit{Econometrica}, 55(5):999--1033.
+
+\end{document}
