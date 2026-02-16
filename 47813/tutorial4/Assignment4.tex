@@ -1,0 +1,186 @@
+
+\documentclass[11pt]{article}
+\usepackage{lscape}
+\usepackage{amsfonts}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+
+\setcounter{MaxMatrixCols}{10}
+\newtheorem{theorem}{Theorem}
+\newtheorem{acknowledgement}[theorem]{Acknowledgement}
+\newtheorem{algorithm}[theorem]{Algorithm}
+\newtheorem{axiom}[theorem]{Axiom}
+\newtheorem{case}[theorem]{Case}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{conclusion}[theorem]{Conclusion}
+\newtheorem{condition}[theorem]{Condition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{criterion}[theorem]{Criterion}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{exercise}[theorem]{Exercise}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{notation}[theorem]{Notation}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{solution}[theorem]{Solution}
+\newtheorem{summary}[theorem]{Summary}
+\newenvironment{proof}[1][Proof]{\noindent\textbf{#1.} }{\ \rule{0.5em}{0.5em}}
+
+\geometry{left=1.3in, right=1.3in, top=1.2in, bottom=1.2in}
+
+\begin{document}
+
+\begin{flushright}
+Econometrics III 47-813
+
+Spring 2026
+
+Robert A. Miller
+\end{flushright}
+
+\begin{center}
+\textbf{ASSIGNMENT 4 (Gayle, Golan, and Miller, 2015)}
+\end{center}
+
+\vspace{0.5cm}
+
+\noindent \textbf{Overview.}
+This assignment concerns the structural estimation of dynamic models with moral hazard, sorting, and human capital accumulation, based on Gayle, Golan, and Miller (2015, \textit{Econometrica}). You will: (i) trace the chain from model primitives to estimation, (ii) confront identification challenges that arise from asymmetric information, and (iii) explore how simplifying the information structure changes the model, its key equations, and the estimation procedure.
+
+\vspace{0.3cm}
+
+\noindent \textbf{Instructions.}
+Work in groups of about three. Each group should submit a single, self-contained report. Hand written work will not be graded. Poor grammar, unclear expression, and lack of precision, will be graded as if I have very limited expertise in this area. All questions carry equal weight unless otherwise stated.
+
+\vspace{0.5cm}
+
+\noindent\textbf{Model.}
+Executives choose among job-matches $(j,k)$ where $j$ indexes firms and $k$ indexes ranks. After choosing a match, each executive privately decides whether to work or shirk. Shareholders design compensation contracts, and executives sort across firms based on compensation, nonpecuniary benefits, and the investment value of human capital. We use the notation of the paper throughout.
+
+
+%==============================================================================
+\vspace{0.5cm}
+
+\noindent\textbf{Question 1.}
+The paper addresses three interrelated problems. This question asks you to study the key equations for each and trace how they connect to estimation.
+
+\begin{itemize}
+
+\item[(a)] \textbf{Executive sorting} (equations 4.14, 4.15, 6.2, 6.3). Executives choose job-matches $(j,k)$ by solving the dynamic discrete choice problem in~(4.14), whose equilibrium sorting condition is given by~(4.15) via the Hotz-Miller CCP mapping.
+\begin{itemize}
+    \item[(i)] Read equation (4.14). Identify each term and explain the economic trade-offs an executive faces.
+    \item[(ii)] What does the left-hand side $q_{jk}[p_t(h)]$ of (4.15) represent, and why is it computable from data alone?
+    \item[(iii)] Equation (6.2) expresses $A_t(h)$ as a function of CCPs. Substituting into the sorting condition yields (6.3). Trace this derivation. What structural parameters appear on the right-hand side of (6.3)?
+\end{itemize}
+
+\item[(b)] \textbf{Compensation under moral hazard} (equations 4.21, 4.22, 4.25, 6.7). The optimal contract structure is characterized by Theorem~4.3.
+\begin{itemize}
+    \item[(i)] Compare equations (4.22) and (4.25). What determines the variable component of compensation? Why must it depend on $\pi$?
+    \item[(ii)] The likelihood ratio $g_{jk}(\pi|h)$ involves the distribution of returns under shirking, which is never observed in equilibrium. Examine equation (6.7). How do the authors recover this object? What estimates from earlier steps are required?
+\end{itemize}
+
+\item[(c)] \textbf{Career concerns} (equations 5.8, 5.10, 6.9, Theorem 6.2). In the extended model, human capital depends on effort, creating an implicit incentive channel. The interaction between this channel and explicit compensation is governed by the extended incentive compatibility condition~(5.8).
+\begin{itemize}
+    \item[(i)] Compare the incentive compatibility conditions (4.21) and (5.8). What additional channel appears in the extended model? Equation (6.9) defines $\beta^*_{jkt}(h)$. Can the econometrician distinguish the extended model from the basic model using data on compensation and career transitions? Consult Theorem~6.2.
+    \item[(ii)] Read the end of Section~6.3. What assumptions do the authors impose to decompose $\beta^*_{jkt}(h)$? What is special about the retirement period $T-1$, and how does it anchor the recursive procedure in Step~4?
+\end{itemize}
+
+\end{itemize}
+
+
+%==============================================================================
+\vspace{0.5cm}
+
+\noindent\textbf{Question 2.}
+Identification. This question asks you to work through the identification problems that arise from asymmetric information in this model.
+
+\begin{itemize}
+
+\item[(a)] \textbf{Separating $\rho$ and $\alpha$} (equations 6.3, 6.5, 7.1). Examine equation (6.3). Both risk aversion $\rho$ and disutility $\alpha_{jkt}(h)$ appear on the right-hand side. Suppose you attempted to estimate (6.3) directly---without instruments---via a two-step procedure that plugs in first-stage CCP estimates. Why would this fail to separately identify $\rho$ and $\alpha$? The authors instead construct the GMM moment condition (7.1) from (6.3) via (6.5). What variables do they use as instruments? Why do these instruments resolve the identification problem---that is, what must be true about their relationship to $\rho$, $\alpha$, and the compensation schedule? Evaluate whether these conditions are economically plausible.
+
+\item[(b)] \textbf{Distinguishing the basic and extended models} (equations 4.21, 5.8, 6.9, Theorem 6.2). Compare the incentive compatibility conditions of the basic model~(4.21) and the extended model~(5.8). Using the definition of $\beta^*_{jkt}(h)$ in~(6.9), show that the basic model with shirking parameter $\beta^A_{jkt}(h)$ and the extended model with primitives $(\beta^B_{jkt}(h), \underline{H}_{jk}(h))$ generate identical observable implications whenever $\beta^A_{jkt}(h) = \beta^*_{jkt}(h)$. What does this imply for a researcher who wants to measure the importance of career concerns?
+
+\item[(c)] \textbf{Breaking the equivalence} (Section 6.3, Step 4). The authors assume $\beta^B_{jkt}(h)$ does not vary with age $t$. What economic behavior does this rule out? How does this interact with the fact that career concerns vanish at retirement ($T-1$), and how does it enable the recursive decomposition in Step~4? Compare this identification challenge to the unobserved heterogeneity problem in Assignment~3: in both cases, the econometrician cannot directly condition on a key state variable. How do the resolution strategies differ?
+
+\end{itemize}
+
+
+%==============================================================================
+\vspace{0.5cm}
+
+\noindent\textbf{Question 3.}
+\textbf{Simplification 1: Removing career concerns.} Suppose effort does not affect human capital accumulation, so that $H_{jk}(h) = \underline{H}_{jk}(h)$ for all $(j,k,h)$. This is the basic model of Section~4. The following parts ask you to check, equation by equation, what changes and what does not.
+
+\begin{itemize}
+
+\item[(a)] \textbf{Optimal contract.} Consider the variable component of compensation in the extended model, equation (5.10). Under the assumption $H_{jk}(h) = \underline{H}_{jk}(h)$, what happens to the career concerns ratio $B_{t+1}[H_{jk}, \underline{H}_{jk}] / B_{t+1}[H_{jk}, H_{jk}]$? Show that (5.10) reduces to (4.22).
+
+\item[(b)] \textbf{Incentive compatibility.} Compare the extended IC (5.8) with the basic IC (4.21). What term disappears? Equation (5.9) gives a condition under which career concerns alone suffice to deter shirking without variable pay. Can this condition ever be satisfied when $H_{jk}(h) = \underline{H}_{jk}(h)$? Why or why not?
+
+\item[(c)] \textbf{Observational equivalence.} In Question~2(b) you showed that the basic and extended models can generate identical data. Does this identification problem still arise under the current assumption? Specifically, is $\beta^*_{jkt}(h)$ in (6.9) now equal to $\beta^A_{jkt}(h)$, and can it be interpreted directly as a structural primitive?
+
+\item[(d)] \textbf{Equations that do not change.} Verify that the following equations are unaffected by this simplification: the executive's choice problem (4.14), the sorting condition (4.15), the CCP representation of $A_t(h)$ in (6.2), the identification equation (6.3), the GMM moment condition (7.1), and the likelihood ratio formula (6.7). Explain briefly why each is unchanged---what feature of the basic model preserves them?
+
+\item[(e)] \textbf{Estimation.} The authors' four-step procedure is: (1) nonparametric estimation of CCPs, compensation schedules, and return densities; (2) GMM estimation of $\rho$ and $\alpha$ via (7.1); (3) plug-in estimation of $g_{jk}$ via (6.7) and $\beta^*$ via (6.8); (4) recursive decomposition of $\beta^*$ into $\beta^B$ and career concerns $\Delta^B$. Which steps survive, and which can be eliminated? For each surviving step, does anything simplify? For each eliminated step, explain what assumptions are no longer required.
+
+\item[(f)] \textbf{Empirical cost.} If career concerns were absent, how would the optimal contract need to adjust to maintain incentive compatibility? What age-related pattern in the data would the basic model be unable to explain?
+
+\end{itemize}
+
+
+%==============================================================================
+\vspace{0.5cm}
+
+\noindent\textbf{Question 4.}
+\textbf{Simplification 2: Observable effort.} Now suppose shareholders can directly observe and contract upon whether an executive works or shirks. Again, check equation by equation what changes.
+
+\begin{itemize}
+
+\item[(a)] \textbf{Incentive compatibility.} If effort is observable, the incentive compatibility constraint (4.21) is no longer a binding constraint on the contract. Explain why. What does this imply about the role of $g_{jk}(\pi|h)$ and $\beta$ in the model?
+
+\item[(b)] \textbf{Optimal contract.} Consider the contract structure in (4.25): $w_{jkt+1}(h,\pi) = w^A_{jkt+1}(h) + r^A_{jkt+1}(h,\pi)$. Show that the variable component $r^A_{jkt+1}(h,\pi) = 0$, so that compensation is independent of the firm's excess return $\pi$. Why is it suboptimal for a risk-neutral principal to expose a risk-averse agent to return risk when effort is contractible?
+
+\item[(c)] \textbf{Risk premium.} The risk premium is defined in equation (8.1) as the difference between expected compensation and certainty-equivalent pay. Show that this equals zero when effort is observable. What fraction of the observed gap can this simplified model explain?
+
+\item[(d)] \textbf{Sorting equation.} In equation (4.14), the term $E_t[\upsilon_{jkt+1}]$ captures the expected utility from stochastic compensation. When compensation is deterministic, this term simplifies. Derive the resulting sorting equation and show that the model reduces to a dynamic Roy model where executives sort based on $\alpha_{jkt}(h)$, $A_{t+1}[H_{jk}(h)]$, and deterministic pay $F_{jk}(h)$.
+
+\item[(e)] \textbf{Equations that do not change.} Verify that the following remain valid: the CCP representation (6.2), the identification equation (6.3), and the market-clearing condition (4.26). For each, explain why observable effort does not affect the equation.
+
+\item[(f)] \textbf{Estimation.} Consider the four-step procedure:
+\begin{itemize}
+    \item[(i)] \textbf{Step 1.} The authors estimate CCPs $p_t(h)$, the compensation schedule $w(h,\pi)$, and excess return densities $f_j(\pi)$. When $w$ does not depend on $\pi$, how does this step simplify? Which objects still need to be estimated?
+    \item[(ii)] \textbf{Step 2.} The GMM moment condition (7.1) involves $E[e^{-\rho w/b_{\tau+1}}]$. When compensation is deterministic, what happens to this expression? Does the identification of $\rho$ become easier or harder when it must come entirely from cross-sectional variation in job choices rather than from the stochastic structure of pay?
+    \item[(iii)] \textbf{Steps 3 and 4.} Are these steps needed? What objects ($g_{jk}$, $\beta^*$, $\beta^B$, $\Delta^B$) are no longer part of the model?
+\end{itemize}
+
+\item[(g)] \textbf{Empirical cost.} This model predicts that optimal compensation is a fixed salary with no performance-related component. Discuss whether this is consistent with the observed prevalence of stock-based and option-based executive pay, which the authors document in their data description (Section~2).
+
+\end{itemize}
+
+%==============================================================================
+\vspace{0.7cm}
+
+\noindent\textbf{Deliverables.}
+Submit a report that:
+\begin{itemize}
+    \item[(i)] Answers each question with appropriate derivations and economic reasoning.
+    \item[(ii)] References specific equations, theorems, tables, and figures from the paper.
+    \item[(iii)] Discusses limitations and possible extensions.
+\end{itemize}
+
+\vspace{0.5cm}
+
+\noindent\textbf{References.}
+
+\noindent Gayle, G.-L., Golan, L., and Miller, R.A. (2015). Promotion, Turnover, and Compensation in the Executive Labor Market. \textit{Econometrica}, 83(6):2293--2369.
+
+\noindent Hotz, V.J. and Miller, R.A. (1993). Conditional Choice Probabilities and the Estimation of Dynamic Models. \textit{The Review of Economic Studies}, 60(3):497--529.
+
+\noindent Roy, A.D. (1951). Some Thoughts on the Distribution of Earnings. \textit{Oxford Economic Papers}, 3(2):135--146.
+
+\end{document}
