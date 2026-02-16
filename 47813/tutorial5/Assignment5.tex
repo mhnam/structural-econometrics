@@ -1,0 +1,240 @@
+
+\documentclass[11pt]{article}
+\usepackage{lscape}
+\usepackage{amsfonts}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+
+\setcounter{MaxMatrixCols}{10}
+\newtheorem{theorem}{Theorem}
+\newtheorem{acknowledgement}[theorem]{Acknowledgement}
+\newtheorem{algorithm}[theorem]{Algorithm}
+\newtheorem{axiom}[theorem]{Axiom}
+\newtheorem{case}[theorem]{Case}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{conclusion}[theorem]{Conclusion}
+\newtheorem{condition}[theorem]{Condition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{criterion}[theorem]{Criterion}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{exercise}[theorem]{Exercise}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{notation}[theorem]{Notation}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{solution}[theorem]{Solution}
+\newtheorem{summary}[theorem]{Summary}
+\newenvironment{proof}[1][Proof]{\noindent\textbf{#1.} }{\ \rule{0.5em}{0.5em}}
+
+\geometry{left=1.3in, right=1.3in, top=1.2in, bottom=1.2in}
+
+\begin{document}
+
+\begin{flushright}
+Econometrics III 47-813
+
+Spring 2026
+
+Robert A. Miller
+\end{flushright}
+
+\begin{center}
+\textbf{ASSIGNMENT 5 (Kang and Miller, 2022)}
+\end{center}
+
+\vspace{0.5cm}
+
+\noindent \textbf{Overview.}
+This assignment concerns the structural estimation of a procurement model with adverse selection, risk-averse sellers, and endogenous competition, based on Kang and Miller (2022, \textit{Review of Economic Studies}). You will: (i)~trace the chain from the buyer's optimal menu design to the sequential estimation procedure, (ii)~confront identification challenges arising from unobserved heterogeneity and the gap between nonparametric identification and parametric estimation, and (iii)~explore how simplifying either the information structure or seller preferences changes the model, its key equations, and the estimation procedure. The final question asks you to design and implement a Monte Carlo experiment that evaluates the consequences of parametric restrictions on risk preferences.
+
+\vspace{0.3cm}
+
+\noindent \textbf{Instructions.}
+Work in groups of about three. Each group should submit a single, self-contained report together with documented code for Question~5. Hand written work will not be graded. Poor grammar, unclear expression, and lack of precision, will be graded as if I have very limited expertise in this area. All questions carry equal weight unless otherwise stated.
+
+\vspace{0.5cm}
+
+\noindent\textbf{Model.}
+A buyer (procurement agency) awards a project to one of $n+1$ sellers, where $n$ additional sellers arrive via a Poisson search process with intensity $\lambda$. Each seller is privately either low-cost ($k=1$) with probability~$\pi$ or high-cost ($k=0$). The buyer designs a menu of contracts $\{p_{jn}, q_{jn}(s)\}$ consisting of a base price and a price adjustment that depends on contractible outcomes~$s$. After the project is completed, outcomes~$s$ are realized and total payment $p_{jn}+q_{jn}(s)$ is made. We use the notation of the paper throughout.
+
+
+%==============================================================================
+\vspace{0.5cm}
+
+\noindent\textbf{Question 1.}
+The paper solves three interrelated problems: menu design, competition, and search. This question asks you to study the key equations for each and trace how they connect.
+
+\begin{itemize}
+
+\item[(a)] \textbf{Primitives} (equations 3.1--3.3, Assumption~3.1). Read the cost structure in~(3.2) and the seller's payoff in~(3.3).
+\begin{itemize}
+    \item[(i)] Decompose the seller's total cost~$c_k$ and classify each component by who observes it and when. What feature of the model gives the buyer leverage to distinguish seller types through contract design?
+    \item[(ii)] The function $\psi(\cdot)$ satisfies three conditions: $\psi(0)=0$, $\psi'(0)=1$, $\psi''\leq 0$. Interpret each. Then consider a hypothetical contract that offers a seller random payment $\tilde{r}$ with $E[\tilde{r}]=0$. What is the seller's valuation 
+    of this lottery, and what does this imply for contract design?
+    \item[(iii)] Assumption~3.1 imposes a joint ordering on initial costs and expected cost variation. Construct an example of a cost structure that satisfies $\gamma_1 < \gamma_0$ but violates the second inequality. What would go wrong with the screening argument in Theorem~3.1?
+\end{itemize}
+\item[(b)] \textbf{Optimal menu} (Theorem~3.1, equations 3.9--3.11). The buyer designs a menu of contracts, one per seller type.
+\begin{itemize}
+    \item[(i)] Examine equation~(3.9). The price adjustment distortion $r(s)$ varies with the contractible outcome~$s$. What property of~$s$ determines the sign and magnitude of~$r(s)$? Trace the economic logic: how does the structure of~$r(s)$ make the high-cost 
+    contract unattractive to a low-cost seller?
+    \item[(ii)] Read equations~(3.10) and~(3.11) together. Both are base prices, but they respond differently to the number of bidders~$n$. Explain why, by identifying which equilibrium condition pins down each price. What happens to the gap between them as $n$ grows?
+\end{itemize}
+
+\item[(c)] \textbf{Competition and search} (Corollary~3.2, equations 3.14--3.17). The buyer's expected payment~$T(n)$ depends on the number of bidders.
+\begin{itemize}
+    \item[(i)] Corollary~3.2 decomposes $T(n)$ into two components. Interpret each and determine their relative magnitudes. How does the buyer's ability to screen through contract design interact with the 
+    value of attracting additional bidders?
+    \item[(ii)] The buyer solicits if $\eta \leq \Omega(\pi)$. The parameter~$\eta$ bundles several distinct economic forces. What are they, and why can't the model disentangle 
+    them? What does the empirical finding of small average~$\eta$ tell us --- and what does it leave unresolved?
+    \item[(iii)] If~$\pi$ is close to 1, trace what happens to the information rent, the screening distortion, the value of competition, and the solicitation decision. Does the model predict that high-$\pi$ projects are more or less likely to receive a 
+    single bid?
+\end{itemize}
+
+\end{itemize}
+
+
+%==============================================================================
+\vspace{0.5cm}
+
+\noindent\textbf{Question 2.}
+This question asks you to work through the sequential identification strategy and its key challenges.
+
+\begin{itemize}
+\item[(a)] \textbf{Risk preferences via the ODE} (Section~4.4.2, equations 4.1--4.2, Lemma~4.3). The first-order condition for the optimal price adjustment yields equation~(4.1). Differentiating with respect to~$l$ produces the ODE~(4.2).
+\begin{itemize}
+    \item[(i)] Examine the ODE~(4.2) and its initial conditions. What variation in the observed data traces out the function~$\psi$? For a fixed~$\pi$, what moves along the ODE, and what determines how far along it the data can reach?
+    \item[(ii)] Compare the identification result in Section~4.4.2 with the estimation procedure in Section~5.2.3. What is gained and what is lost in the passage from one to the other? Under what circumstances would the two approaches yield materially different estimates?
+    \item[(iii)] Suppose you wanted to estimate~$\psi$ using the ODE directly. Trace the chain of objects that must be estimated beforehand, and assess the feasibility of each step given the sample described in Section~2.
+\end{itemize}
+
+\item[(b)] \textbf{Seller costs} (equations 4.5--4.6, Lemma~4.4). The initial costs $\gamma_0(\pi)$ and $\gamma_1(\pi)$ are not directly observed. They must 
+be recovered from equilibrium prices.
+\begin{itemize}
+    \item[(i)] Read equations (4.5) and (4.6). What observable variation drives the identification of $\gamma_1(\pi)$, and why does the structure of~(3.10) make this variation informative? Consider a dataset in which every contract has exactly one bidder. What goes wrong?
+    \item[(ii)] Equations (4.5) and (4.6) both involve~$\psi$. What does this imply about the ordering of the estimation steps? Trace what would change if sellers were risk neutral.
+    \item[(iii)] In Assignment~4, $\alpha_{jkt}(h)$ is likewise a structural primitive recovered from equilibrium outcomes. What source of variation plays an analogous role there, and where does the analogy break down?
+\end{itemize}
+
+\end{itemize}
+
+
+%==============================================================================
+\vspace{0.5cm}
+
+\noindent\textbf{Question 3.}
+\textbf{Risk-neutral sellers.} Suppose $\psi(r) = r$ for all $r$, so that sellers evaluate uncertain payments at their expected value. The following parts ask you to check, equation by equation, what changes and what does not.
+
+\begin{itemize}
+
+\item[(a)] \textbf{Optimal contract.} Substitute $\psi(r) = r$ into the high-cost contract distortion~(3.9). Show that the high-cost price adjustment $q_0(s) = c(s) + r(s)$ simplifies. Does the buyer still screen seller types, or does screening become unnecessary? Examine what happens to the low-cost contract.
+
+\item[(b)] \textbf{Base prices.} Substitute $\psi(r)=r$ into the base price equations~(3.10) and~(3.11). How do $p_n$ and $\bar{p}$ simplify? Show that the information rent in~(3.10) now depends only on $\gamma_0-\gamma_1$ and $n$, with no role for the contract outcome distributions $f_0, f_1$.
+
+\item[(c)] \textbf{Expected payment and competition.} Compute $\Gamma$ from Corollary~3.2 when $\psi(r)=r$. What is its sign? What does this imply about the marginal value of competition relative to the case with risk-averse sellers? Does the buyer search more or less intensively?
+
+\item[(d)] \textbf{Equations that do not change.} Verify that the following are unaffected: the buyer's search decision structure~(3.16)--(3.17), the Poisson arrival assumption, and the sequential structure of the game (menu design after search). Explain briefly why each is preserved.
+
+\item[(e)] \textbf{Identification and estimation.} Consider the five-step sequential estimation procedure (Section~5).
+\begin{itemize}
+    \item[(i)] Step~1 estimates $f_0(s)$, $f_1(s)$, and $c(s)$. Is this step still needed? What feature of the data still requires $f_k(s)$?
+    \item[(ii)] Step~2 estimates $\psi$ via the extremum estimator. Is this step needed when $\psi$ is known? What happens to the ODE~(4.2)?
+    \item[(iii)] Step~3 recovers the distribution of $\pi$. Does the method in Section~5.2.2 simplify? Can $\pi$ be recovered more directly from base prices?
+    \item[(iv)] Steps~4 and~5 estimate costs and search costs. Do these steps simplify?
+\end{itemize}
+\end{itemize}
+
+
+%==============================================================================
+\vspace{0.5cm}
+
+\noindent\textbf{Question 4.}
+\textbf{Monte Carlo experiment.} The paper identifies $\psi$ nonparametrically via the ODE~(4.2) but estimates it using a parametric CARA specification. This question asks you to design and implement a Monte Carlo experiment that evaluates the consequences of this gap.
+
+\begin{itemize}
+
+\item[(a)] \textbf{Data generating process.} Construct a simplified DGP based on the model:
+\begin{itemize}
+    \item[(i)] Let $s$ be scalar (a single cost-change outcome). Specify $f_0(s)$ and $f_1(s)$ as known distributions with $l(s) = f_1(s)/f_0(s)$ that spans a nontrivial range. Propose specific distributional choices and justify them.
+    \item[(ii)] Specify $\gamma_0(\pi)$, $\gamma_1(\pi)$, and $c(s)$. Choose parameter values that generate realistic cost magnitudes.
+    \item[(iii)] For the true $\psi$, consider two specifications:
+    \begin{itemize}
+        \item DGP~A: CARA, $\psi_A(r) = [1-\exp(-ar)]/a$ for some $a>0$.
+        \item DGP~B: DARA (decreasing absolute risk aversion), for example $\psi_B(r) = \log(1+ar)/a$.
+    \end{itemize}
+    For each, verify $\psi(0)=0$, $\psi'(0)=1$, $\psi''<0$. Plot both functions and discuss how they differ for large $|r|$.
+    \item[(iv)] For each draw, generate $\pi_i \sim \text{Beta}(\alpha,\beta)$, then generate $(n_i, k_i, s_i)$ from the equilibrium: $n_i \sim \text{Poisson}(\lambda(\pi_i))$, $k_i$ from the winning probability $(1-\pi_i)^{n_i}$, and $s_i \sim f_{k_i}$. Compute the equilibrium prices $p_i$ and $q_i(s_i)$ using the true model equations~(3.9)--(3.11). Add measurement error if desired.
+\end{itemize}
+
+\item[(b)] \textbf{Estimation methods.} Implement two estimators for $\psi$:
+\begin{itemize}
+    \item[(i)] \textbf{Parametric (paper's method).} Assume $\psi(r) = [1-\exp(-\hat{a}r)]/\hat{a}$ and estimate $\hat{a}$ by minimizing the sum of squared residuals between observed and model-predicted prices, as in Section~5.2.3.
+    \item[(ii)] \textbf{Sieve (ODE-based).} Approximate $\psi$ using a B-spline or polynomial sieve $\psi(r;\alpha) = \sum_{j=1}^J \alpha_j B_j(r)$ subject to $\psi(0)=0$, $\psi'(0)=1$, $\psi'' \leq 0$. Use the ODE~(4.2) to construct moment conditions:
+    $$
+    \psi''(r) = g(l, r, \psi'(r))
+    $$
+    where $g$ is determined by the first-order condition~(4.1). Estimate $\alpha$ by minimizing the integrated ODE residual over the observed support of $(l,r)$ pairs from high-cost contracts.
+\end{itemize}
+
+\item[(c)] \textbf{Experiment 1: Baseline recovery.} Generate $R=500$ datasets of size $N=7{,}000$ (matching the paper) from DGP~A (CARA is true). For each replication, estimate $\psi$ using both methods. Report:
+\begin{itemize}
+    \item[(i)] Bias and RMSE of the CARA parameter $\hat{a}$ under the parametric method.
+    \item[(ii)] Integrated squared error $\int[\hat\psi(r)-\psi_0(r)]^2\,dr$ for both methods.
+    \item[(iii)] Is the parametric method more efficient when correctly specified? By how much?
+\end{itemize}
+
+\item[(d)] \textbf{Experiment 2: Misspecification.} Repeat (c) using DGP~B (DARA is true, CARA is imposed).
+\begin{itemize}
+    \item[(i)] Document the bias in $\hat\psi$ under the parametric method. Where in the domain of $r$ is the bias largest?
+    \item[(ii)] Compute the downstream bias in $\gamma_0$, $\gamma_1$, $\Delta$, and the counterfactual ``switch to auction'' prediction. Present these as a fraction of the true values.
+    \item[(iii)] Does the sieve method eliminate the bias? At what cost in terms of variance?
+\end{itemize}
+
+\item[(e)] \textbf{Experiment 3: Finite-sample sensitivity.} Fix DGP~B and vary the number of high-cost contracts $N_0 \in \{50, 100, 264, 500, 1000\}$ (recall that only 4\% of the paper's sample are high-cost).
+\begin{itemize}
+    \item[(i)] How does the RMSE of the sieve estimator change with $N_0$? At what sample size does it begin to outperform the (misspecified) parametric estimator in terms of MSE?
+    \item[(ii)] How should the number of sieve basis functions $J$ be chosen as a function of $N_0$? Implement a simple cross-validation or information criterion procedure and report the selected $J$ for each $N_0$.
+\end{itemize}
+
+\item[(f)] \textbf{Discussion.}
+\begin{itemize}
+    \item[(i)] Based on your results, evaluate the paper's decision to use a parametric $\psi$. Under what conditions is this choice defensible?
+    \item[(ii)] Propose a specification test that could be applied to the real data to detect whether the CARA assumption is violated. How would you construct the test statistic from the ODE residuals?
+    \item[(iii)] What additional data or institutional features would most improve the nonparametric estimation of $\psi$?
+\end{itemize}
+
+\end{itemize}
+
+
+%==============================================================================
+\vspace{0.7cm}
+
+\noindent\textbf{Deliverables.}
+Submit a report that:
+\begin{itemize}
+    \item[(i)] Answers each question with appropriate derivations and economic reasoning.
+    \item[(ii)] References specific equations, theorems, tables, and figures from the paper.
+    \item[(iii)] Draws connections to the methods from Assignments~1--4 where relevant.
+    \item[(iv)] For Question~5: includes documented Python code, figures showing $\hat\psi$ recovery, and tables summarizing Monte Carlo results.
+    \item[(v)] Discusses limitations and possible extensions.
+\end{itemize}
+
+\vspace{0.5cm}
+
+\noindent\textbf{References.}
+
+\noindent Kang, Z. and Miller, R.A. (2022). Winning by Default: Why is There So Little Competition in Government Procurement? \textit{The Review of Economic Studies}, 89(3):1495--1556.
+
+\noindent Krasnokutskaya, E. (2011). Identification and Estimation of Auction Models with Unobserved Heterogeneity. \textit{The Review of Economic Studies}, 78(1):293--327.
+
+\noindent Gayle, G.-L., Golan, L., and Miller, R.A. (2015). Promotion, Turnover, and Compensation in the Executive Labor Market. \textit{Econometrica}, 83(6):2293--2369.
+
+\noindent Rothschild, M. and Stiglitz, J. (1976). Equilibrium in Competitive Insurance Markets: An Essay on the Economics of Imperfect Information. \textit{The Quarterly Journal of Economics}, 90(4):629--649.
+
+\noindent Chen, X. (2007). Large Sample Sieve Estimation of Semi-Nonparametric Models. \textit{Handbook of Econometrics}, 6B:5549--5632.
+
+\end{document}
